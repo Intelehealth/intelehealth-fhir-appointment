@@ -1,2 +1,2 @@
 # intelehealth-path-appointment
-Repository for Path Appointment Module
+Repository for FHIR Appointment Module
