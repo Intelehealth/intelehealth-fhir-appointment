@@ -1,0 +1,8 @@
+services:
+   appointment:
+      build: .
+      image: appointment:1.0
+      container_name: appointment
+      ports:
+         - "5004:5004"
+      command: /bin/bash -c "java -jar /app/target/appointments.exchange-0.0.1-SNAPSHOT.jar"
