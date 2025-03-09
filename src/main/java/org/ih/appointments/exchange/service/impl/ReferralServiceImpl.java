@@ -37,7 +37,7 @@ public class ReferralServiceImpl extends IHConstant implements IReferralService 
 	public ServiceRequest generateBundle(ReferralDTO dto) {
 		ServiceRequest serviceRequest = new ServiceRequest();
 		serviceRequest.setId(UUID.randomUUID().toString());
-		String patientReference = crFhirURL + "/Patient/" + dto.getPatientId();
+		String patientReference = crFhirURL + "/Patient/" + dto.getMpiId();
 
 		Reference thePatient = new Reference();
 		thePatient.setType("Patient");

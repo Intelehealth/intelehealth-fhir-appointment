@@ -7,13 +7,28 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Service;
 
 @Service
-public class CommonOperationDao {
+public class ConfigFacilityDao {
 
 	@Autowired
 	private NamedParameterJdbcTemplate template;
 
 	public String findAppointmentServerUrlByLocationV2(String locationUuid) {
 		String sql = "SELECT appointment_api FROM config_fcility WHERE facility_uuid=:uuid";
+
+		MapSqlParameterSource params = new MapSqlParameterSource();
+		params.addValue("uuid", locationUuid);
+		try {
+			String apiURL = template.queryForObject(sql, params, String.class);
+			return apiURL;
+		} catch (EmptyResultDataAccessException e) {
+			e.printStackTrace();
+			return null;
+		}
+
+	}
+	
+	public String findReferralServerUrlByLocationV2(String locationUuid) {
+		String sql = "SELECT referral_api FROM config_fcility WHERE facility_uuid=:uuid";
 
 		MapSqlParameterSource params = new MapSqlParameterSource();
 		params.addValue("uuid", locationUuid);

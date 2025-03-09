@@ -2,6 +2,10 @@ package org.ih.appointments.exchange.dto;
 
 public class ReferralDTO {
 
+	private String facilityName;
+	
+	private String facilityId;
+	
 	private String practitioner;
 
 	private String practitionerName;
@@ -11,12 +15,31 @@ public class ReferralDTO {
 	private String patientName;
 
 	private String patientId;
+	
+	private String mpiId;
 
 	private String reason;
 
 	private String uuid;
 
 	private String created;
+	
+
+	public String getFacilityName() {
+		return facilityName;
+	}
+
+	public void setFacilityName(String facilityName) {
+		this.facilityName = facilityName;
+	}
+
+	public String getFacilityId() {
+		return facilityId;
+	}
+
+	public void setFacilityId(String facilityId) {
+		this.facilityId = facilityId;
+	}
 
 	public String getPractitioner() {
 		return practitioner;
@@ -56,6 +79,14 @@ public class ReferralDTO {
 
 	public void setPatientId(String patientId) {
 		this.patientId = patientId;
+	}
+	
+	public String getMpiId() {
+		return mpiId;
+	}
+
+	public void setMpiId(String mpiId) {
+		this.mpiId = mpiId;
 	}
 
 	public String getReason() {

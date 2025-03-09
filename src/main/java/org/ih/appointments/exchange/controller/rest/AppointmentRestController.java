@@ -2,6 +2,8 @@ package org.ih.appointments.exchange.controller.rest;
 
 import java.io.UnsupportedEncodingException;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Map;
 
 import org.ih.appointments.exchange.dto.FhirResponse;
@@ -49,6 +51,9 @@ public class AppointmentRestController {
 	@GetMapping(value = "/available/schedule", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> getAvailableSchedule(@RequestParam Map<String, String> reqParam) {
 		try {
+			String currentDate = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
+			reqParam.put("date", "ge"+currentDate);
+			
 			FhirResponse res = bundleService.getResourceType("/Schedule", reqParam);
 			if (res.getStatusCode().equals("200")) {
 				System.err.println("DDD>>> " + res);

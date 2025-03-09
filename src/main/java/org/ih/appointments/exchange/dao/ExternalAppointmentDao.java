@@ -20,19 +20,34 @@ public class ExternalAppointmentDao {
 	private NamedParameterJdbcTemplate template;
 
 	public List<RequestAppointmentDTO> getExternalAppointmentByDate(String date) {
-		String sql = "SELECT  "
-				+ " ea.request_id request_id,"
-				+ " ea.facility_uuid location,"
-				+ " ea.facility_name location_name,"
-				+ " ea.requester_id practitioner, "
-				+ " ea.patient_uuid patient_id,"
-				+ " ea.slot slot,"
-				+ " ea.duration duration,"
-				+ " ea.service_category service_category,"
-				+ " ea.service_type service_type,"
-				+ " ea.specialty specialty"
-				+ " from external_appointment ea"
-				+ " where ea.status='booked' and (ea.date_changed >= :date or ea.date_created >=:date)";
+		String sql = "SELECT"
+				+ "	ea.request_id AS request_id,"
+				+ "	ea.facility_uuid AS location,"
+				+ "	ea.facility_name AS location_name,"
+				+ "	ea.requester_id AS practitioner,"
+				+ "	ea.patient_uuid AS patient_id,"
+				+ "	ea.slot AS slot,"
+				+ "	ea.duration AS duration,"
+				+ "	ea.service_category AS service_category,"
+				+ "	ea.service_type AS service_type,"
+				+ "	ea.specialty AS specialty,"
+				+ "	v.uuid AS visitId,"
+				+ "	e.encounter_type AS encounterType"
+				+ " FROM"
+				+ "	external_appointment ea"
+				+ " INNER JOIN visit v ON"
+				+ "	ea.visit_id = v.uuid"
+				+ " INNER JOIN encounter e ON"
+				+ "	v.visit_id = e.visit_id"
+				+ "	AND e.encounter_type = 14"
+				+ " WHERE"
+				+ "	ea.status = 'booked'"
+				+ "	and ( ea.date_changed >= :date"
+				+ "	or ea.date_created >=:date"
+				+ "	or e.date_created >=:date"
+				+ "	or e.date_changed >=:date"
+				+ "	or v.date_changed >= :date"
+				+ "	or v.date_created >= :date )";
 
 		MapSqlParameterSource params = new MapSqlParameterSource();
 
@@ -67,7 +82,7 @@ public class ExternalAppointmentDao {
 
 	}
 	
-	public RequestAppointmentDTO getExternalAppointmentByDateAndPatientId(String date, String patientId) {
+	public RequestAppointmentDTO getExternalAppointmentByDateAndPatientIdDeprecated(String date, String patientId) {
 		String sql = "SELECT  "
 				+ " ea.request_id request_id,"
 				+ " ea.facility_uuid location,"

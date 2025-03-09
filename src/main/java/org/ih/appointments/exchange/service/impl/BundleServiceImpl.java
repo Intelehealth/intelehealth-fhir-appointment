@@ -2,7 +2,7 @@ package org.ih.appointments.exchange.service.impl;
 
 import java.util.Map;
 
-import org.ih.appointments.exchange.dao.CommonOperationDao;
+import org.ih.appointments.exchange.dao.ConfigFacilityDao;
 import org.ih.appointments.exchange.dto.FhirResponse;
 import org.ih.appointments.exchange.service.IBundleService;
 import org.ih.appointments.exchange.utils.HttpWebClient;
@@ -18,7 +18,7 @@ public class BundleServiceImpl extends IHConstant implements IBundleService {
 	FhirContext fhirContext = FhirContext.forR4();
 
 	@Autowired
-	private CommonOperationDao comOprDAO;
+	private ConfigFacilityDao comOprDAO;
 
 	@Override
 	public FhirResponse getResourceType(String resourceType, Map<String, String> reqParam) {

@@ -6,7 +6,7 @@ import java.util.List;
 
 import org.hl7.fhir.r4.model.Appointment;
 import org.hl7.fhir.r4.model.ServiceRequest;
-import org.ih.appointments.exchange.dao.CommonOperationDao;
+import org.ih.appointments.exchange.dao.ConfigFacilityDao;
 import org.ih.appointments.exchange.dao.ConfigDataSyncDao;
 import org.ih.appointments.exchange.dao.ExternalAppointmentDao;
 import org.ih.appointments.exchange.dao.ReferralDao;
@@ -15,7 +15,6 @@ import org.ih.appointments.exchange.dto.ConfigDataSync;
 import org.ih.appointments.exchange.dto.FhirResponse;
 import org.ih.appointments.exchange.dto.ReferralDTO;
 import org.ih.appointments.exchange.dto.RequestAppointmentDTO;
-import org.ih.appointments.exchange.exp.NoAppointmentFoundException;
 import org.ih.appointments.exchange.model.IHMarker;
 import org.ih.appointments.exchange.service.IAppointmentService;
 import org.ih.appointments.exchange.service.IReferralService;
@@ -49,7 +48,7 @@ public class DataSendToFHIR extends IHConstant {
 	private IHMarkerService ihMarkerService;
 
 	@Autowired
-	private CommonOperationDao commonOprDao;
+	private ConfigFacilityDao configFacilityDao;
 
 	@Autowired
 	private ConfigDataSyncDao configDataSyncDao;
@@ -79,24 +78,19 @@ public class DataSendToFHIR extends IHConstant {
 	private void transferReferral() {
 		IHMarker referralMarker = ihMarkerService.findByName(exportReferral);
 
-		List<ReferralDTO> referrals = referralDao.getReferralByDate(referralMarker.getLastSyncTime());
+		List<ReferralDTO> referrals = referralDao.getReferralByDateV2(referralMarker.getLastSyncTime());
 
 		System.err.println("Total Referrals Found: " + referrals.size());
-		int noAppointmentError = 0;
 
 		for (ReferralDTO dto : referrals) {
 			try {
 				sendReferralToExternal(dto);
-			} catch (NoAppointmentFoundException e) {
-				System.err.println(e);
-//				noAppointmentError++;
 			} catch (UnsupportedEncodingException e) {
 				System.err.println(e);
-
 			}
 		}
 
-		if (referrals.size() > 0 && noAppointmentError == 0) {
+		if (referrals.size() > 0) {
 			ihMarkerService.updateMarkerByName(exportReferral);
 		}
 	}
@@ -127,27 +121,19 @@ public class DataSendToFHIR extends IHConstant {
 	}
 
 	private void sendAppointmentToExternal(RequestAppointmentDTO appDto) throws Exception {
+		System.err.println("DDD>>>" + appDto);
 
 		Appointment appointment = iAppointmentService.generateBundle(appDto);
 
-		String externalAppointmentApi = commonOprDao.findAppointmentServerUrlByLocationV2(appDto.getLocation());
+		String externalAppointmentApi = configFacilityDao.findAppointmentServerUrlByLocationV2(appDto.getLocation());
 
 		FhirResponse res = iAppointmentService.sendAppointmentToExternal(appointment, externalAppointmentApi);
 	}
 
-	private void sendReferralToExternal(ReferralDTO dto)
-			throws NoAppointmentFoundException, UnsupportedEncodingException {
+	private void sendReferralToExternal(ReferralDTO dto) throws UnsupportedEncodingException {
 		System.err.println("DDD>>>" + dto);
 
-		RequestAppointmentDTO reqAppDTO = externalAppointmentDao
-				.getExternalAppointmentByDateAndPatientId(dto.getCreated(), dto.getPatientId());
-
-		if (reqAppDTO == null) {
-			System.err.println("No appoinment found for referral >> " + dto);
-			throw new NoAppointmentFoundException("No appoinment found for referral");
-		}
-
-		String externalAPI = commonOprDao.findAppointmentServerUrlByLocationV2(reqAppDTO.getLocation());
+		String externalAPI = configFacilityDao.findReferralServerUrlByLocationV2(dto.getFacilityId());
 
 		ServiceRequest serviceReferral = referralService.generateBundle(dto);
 
